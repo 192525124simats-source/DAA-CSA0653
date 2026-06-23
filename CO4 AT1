@@ -1,3 +1,4 @@
+V.Reddy Sreya(192525124)
 #Question 1: Prim's Algorithm
 def prim(graph,V):
   selected=[False]*V
