@@ -25,6 +25,9 @@ Graph=[
 ]
 print(graph,3)
 
+output:
+Total Weight=3
+
 
 #Question 2: Kruskal's Algorithm
 
@@ -45,3 +48,6 @@ edges = [
     (2, 3, 5)
 ]
 kruskal(edges)
+
+Output:
+MST Cost=7
