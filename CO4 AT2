@@ -1,1 +1,74 @@
+V.Reddy Sreya(192525124)
 
+def find(parent, i):
+    if parent[i] != i:
+        parent[i] = find(parent, parent[i])
+    return parent[i]
+def union(parent, rank, x, y):
+    root_x = find(parent, x)
+    root_y = find(parent, y)
+    if rank[root_x] < rank[root_y]:
+        parent[root_x] = root_y
+    elif rank[root_x] > rank[root_y]:
+        parent[root_y] = root_x
+    else:
+        parent[root_y] = root_x
+        rank[root_x] += 1
+def kruskal(vertices, edges):
+    edges.sort(key=lambda x: x[2])  # Sort by cost
+    parent = {}
+    rank = {}
+    for v in vertices:
+        parent[v] = v
+        rank[v] = 0
+    mst = []
+    total_cost = 0
+    for u, v, cost in edges:
+        if find(parent, u) != find(parent, v):
+            mst.append((u, v, cost))
+            total_cost += cost
+            union(parent, rank, u, v)
+    return mst, total_cost
+vertices = ['A', 'B', 'C', 'D']
+edges = [
+    ('A', 'B', 2),
+    ('A', 'C', 3),
+    ('B', 'C', 1),
+    ('B', 'D', 4),
+    ('C', 'D', 5)
+]
+mst, total_cost = kruskal(vertices, edges)
+print("Selected Routes:")
+for u, v, cost in mst:
+    print(f"{u} - {v} = {cost}")
+print("Total Cost:", total_cost)
+
+
+
+
+
+products = ['A', 'B', 'C', 'D']
+investment = [20000, 30000, 40000, 50000]
+profit = [25000, 40000, 50000, 65000]
+budget = 100000
+n = len(products)
+dp = [[0] * (budget + 1) for _ in range(n + 1)]
+for i in range(1, n + 1):
+    for w in range(budget + 1):
+        if investment[i - 1] <= w:
+            dp[i][w] = max(
+                dp[i - 1][w],
+                profit[i - 1] + dp[i - 1][w - investment[i - 1]]
+            )
+        else:
+            dp[i][w] = dp[i - 1][w]
+max_profit = dp[n][budget]
+selected_products = []
+w = budget
+for i in range(n, 0, -1):
+    if dp[i][w] != dp[i - 1][w]:
+        selected_products.append(products[i - 1])
+        w -= investment[i - 1]
+selected_products.reverse()
+print("Selected Products:", selected_products)
+print("Maximum Profit: ₹", max_profit)
