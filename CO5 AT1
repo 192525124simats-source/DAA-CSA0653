@@ -1,1 +1,228 @@
+# --------------------------------------------
+# JOB SCHEDULING USING BACKTRACKING
+# --------------------------------------------
 
+# List of jobs
+# Format: (Job Name, Duration, Deadline)
+jobs = [
+    ("J1", 2, 4),
+    ("J2", 1, 3),
+    ("J3", 2, 5)
+]
+
+# Available employees
+employees = ["E1", "E2"]
+
+# Dictionary to store assigned jobs for each employee
+schedule = {
+    "E1": [],
+    "E2": []
+}
+
+
+# ------------------------------------------------
+# Function to check whether a job can be assigned
+# ------------------------------------------------
+def is_valid(employee, start_time, duration, deadline):
+
+    # Calculate ending time of the job
+    end_time = start_time + duration
+
+    # Step 1: Check deadline constraint
+    # Job must finish before or on deadline
+    if end_time > deadline:
+        return False
+
+    # Step 2: Check employee availability
+    # Employee should not have overlapping jobs
+    for existing_start, existing_end in schedule[employee]:
+
+        # Overlap occurs if:
+        # New job starts before old job ends
+        # AND new job ends after old job starts
+        if not (end_time <= existing_start or
+                start_time >= existing_end):
+            return False
+
+    # If all constraints pass
+    return True
+
+
+# ------------------------------------------------
+# Recursive Backtracking Function
+# ------------------------------------------------
+def assign_jobs(job_index):
+
+    # Base Case:
+    # All jobs have been assigned successfully
+    if job_index == len(jobs):
+        return True
+
+    # Get current job information
+    job_name, duration, deadline = jobs[job_index]
+
+    # Try assigning job to every employee
+    for employee in employees:
+
+        # Try different starting times
+        for start_time in range(deadline):
+
+            # Check whether assignment is valid
+            if is_valid(employee, start_time,
+                        duration, deadline):
+
+                # --------------------------------
+                # Make Assignment
+                # --------------------------------
+                schedule[employee].append(
+                    (start_time,
+                     start_time + duration)
+                )
+
+                print(f"Assigned {job_name} to "
+                      f"{employee} "
+                      f"from {start_time} "
+                      f"to {start_time + duration}")
+
+                # Recursive call for next job
+                if assign_jobs(job_index + 1):
+                    return True
+
+                # --------------------------------
+                # Backtrack
+                # Remove assignment if future
+                # assignment fails
+                # --------------------------------
+                schedule[employee].pop()
+
+                print(f"Backtracking {job_name}")
+
+    # No valid assignment found
+    return False
+
+
+# --------------------------------------------
+# Main Program
+# --------------------------------------------
+
+print("Job Scheduling Result\n")
+
+if assign_jobs(0):
+
+    print("\nFinal Schedule")
+
+    for employee in schedule:
+        print(employee, ":", schedule[employee])
+
+else:
+    print("No feasible schedule exists")
+
+
+
+
+
+
+# ---------------------------------------------------
+# EXAM TIMETABLING USING GRAPH COLORING
+# ---------------------------------------------------
+
+# Conflict Graph
+# Edge means both exams have common students
+graph = {
+    "Math": ["Physics", "Chemistry"],
+    "Physics": ["Math", "English"],
+    "Chemistry": ["Math"],
+    "English": ["Physics"]
+}
+
+# Available time slots
+time_slots = [
+    "Slot1",
+    "Slot2",
+    "Slot3"
+]
+
+# Dictionary to store exam-slot assignments
+assignment = {}
+
+
+# ---------------------------------------------------
+# Function to check whether slot assignment is safe
+# ---------------------------------------------------
+def is_safe(exam, slot):
+
+    # Check all conflicting exams
+    for neighbor in graph[exam]:
+
+        # If neighboring exam already has
+        # same slot, assignment is invalid
+        if assignment.get(neighbor) == slot:
+            return False
+
+    # Safe assignment
+    return True
+
+
+# ---------------------------------------------------
+# Recursive Graph Coloring Function
+# ---------------------------------------------------
+def schedule_exams(exams, index):
+
+    # Base Case:
+    # All exams scheduled successfully
+    if index == len(exams):
+        return True
+
+    # Current exam
+    current_exam = exams[index]
+
+    # Try every available slot
+    for slot in time_slots:
+
+        # Check if slot assignment is safe
+        if is_safe(current_exam, slot):
+
+            # ----------------------------
+            # Assign Slot
+            # ----------------------------
+            assignment[current_exam] = slot
+
+            print(f"{current_exam} "
+                  f"assigned to {slot}")
+
+            # Recursively schedule next exam
+            if schedule_exams(exams,
+                              index + 1):
+                return True
+
+            # ----------------------------
+            # Backtrack
+            # Remove assignment if future
+            # assignment becomes impossible
+            # ----------------------------
+            del assignment[current_exam]
+
+            print(f"Backtracking "
+                  f"{current_exam}")
+
+    # No valid slot found
+    return False
+
+
+# ---------------------------------------------------
+# Main Program
+# ---------------------------------------------------
+
+exams = list(graph.keys())
+
+print("Exam Timetabling Result\n")
+
+if schedule_exams(exams, 0):
+
+    print("\nFinal Timetable")
+
+    for exam, slot in assignment.items():
+        print(exam, "->", slot)
+
+else:
+    print("No valid timetable exists")
